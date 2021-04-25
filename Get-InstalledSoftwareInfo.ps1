@@ -7,11 +7,33 @@ function Get-InstalledSoftwareInfo {
         [alias('C')]
         [String[]]$ComputerName = '.'
     )
-    Begin {
+    Begin
+    {
+        function Test-TCPing
+        {
+            Param (
+            [Parameter(Mandatory=$true)] 
+                [Alias('IP Address')]
+                [string]$IPAddress,
+            [Parameter(Mandatory=$false)] 
+                [string]$Port = "135"
+                )
+        $TcpingOutput = & tcping -n 3 -w 0.5 -s -4 -c $IPAddress $Port
+        foreach ($to in $TcpingOutput)
+        {
+            if ($to -like "*Port is open*")
+            {
+                return $true
+            }
+        }
+        return $false
+        }
     }
-    Process {
+    Process
+    {
         Foreach ($Computer in $ComputerName) {
-            if (Test-Connection $Computer -Count 2 -Quiet) {
+            if (Test-TCPing -IPAddress $Computer -Port 445)
+            {
                 $RegistryHive = 'LocalMachine'
                 $RegistryKeyPath = $('SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall', 'SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall')
                 $RegistryRoot= "[{0}]::{1}" -f 'Microsoft.Win32.RegistryHive', $RegistryHive
@@ -30,9 +52,9 @@ function Get-InstalledSoftwareInfo {
                         $SoftwareInfo = $Childsubkey.GetValueNames()
                         $Displayname = $Childsubkey.GetValue('DisplayName')
                         [Int]$rawsize = $Childsubkey.GetValue('EstimatedSize')
-                        $ConvertedSize = $rawsize / 1024
+                        $ConvertedSize = $rawsize / 1MB
                         $SoftwareSize = "{0:N2}MB" -f $ConvertedSize
-                        if ($Displayname -ne $null) {
+                        if ($null -ne $Displayname) {
                             $SoftInfo = [PSCustomObject]@{
                                 ComputerName = $Computer
                                 DisplayName = $Childsubkey.GetValue('DisplayName')
@@ -52,16 +74,16 @@ function Get-InstalledSoftwareInfo {
                 }
             }
             else {
-                Write-Host "Computer Name $Computer not reachable" -BackgroundColor DarkRed
+                Write-Host "Computer Name $Computer not reachable" -ForegroundColor Red
             }
         }
     }
-    End {
-        #[Microsoft.Win32.RegistryHive]::ClassesRoot
-        #[Microsoft.Win32.RegistryHive]::CurrentUser
-        #[Microsoft.Win32.RegistryHive]::LocalMachine
-        #[Microsoft.Win32.RegistryHive]::Users
-        #[Microsoft.Win32.RegistryHive]::CurrentConfig
+    End 
+    {
+        
     }
 }
-#Get-InstalledSoftwareInfo -ComputerName Server01, Member01
+
+#Test-TCPing -IPAddress 192.168.1.35 -Port 3389
+
+#Get-InstalledSoftwareInfo -ComputerName 192.168.1.35 | Format-Table -AutoSize 
