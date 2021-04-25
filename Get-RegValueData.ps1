@@ -1,4 +1,4 @@
-function Get-RegValueData {
+﻿function Get-RegValueData {
     [CmdletBinding(SupportsShouldProcess=$True,
         ConfirmImpact='Medium',
         HelpURI='http://vcloud-lab.com')]
@@ -54,7 +54,7 @@ function Get-RegValueData {
     {
         Foreach ($Computer in $ComputerName)
         {
-            if (Test-TCPing -IPAddress $Computer -Port 445)
+            if (Test-TCPing -IPAddress $Computer)
             {
                 $reg = [Microsoft.Win32.RegistryKey]::OpenRemoteBaseKey($RegistryHive, $Computer)
                 $key = $reg.OpenSubKey($RegistryKeyPath)
@@ -67,7 +67,7 @@ function Get-RegValueData {
             }
             else
             {
-                Write-Host "$Computer not reachable" -ForegroundColor Red
+                Write-Host "Computer Name $Computer not reachable" -ForegroundColor Red
             }
         }
     }
@@ -80,5 +80,3 @@ function Get-RegValueData {
         #[Microsoft.Win32.RegistryHive]::CurrentConfig
     }
 }
-
-#Get-RegValueData -ComputerName LEVIK888 -RegistryHive LocalMachine -RegistryKeyPath SOFTWARE\WOW6432Node\GMCS\POS -ValueName 'GM_Scheduler'

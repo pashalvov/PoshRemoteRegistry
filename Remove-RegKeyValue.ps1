@@ -1,8 +1,8 @@
-<#
+﻿<#
 .SYNOPSIS
-    Удалить значение в реестре для удалённой машины
+    Удаление ключей и разделов реестра на удалённых машинах
 .DESCRIPTION
-    Функция для удаление ключей или их занчений в реестре. Использует .NET для этого
+    Позволяет удалить разделы и/или ключи реестра на удалённых машинах
 .EXAMPLE
     Remove-RegKeyValue -ComputerName server01, member01 -RegistryHive LocalMachine -RegistryKeyPath SYSTEM\DemoKey -ChildKey test1, test2
 .EXAMPLE
@@ -44,7 +44,7 @@ function Remove-RegKeyValue
     {
         function Test-TCPing
         {
-            Param
+            param
             (
                 # Укажи имя или IP адрес компьютера
                 [Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $True)] 
@@ -66,7 +66,8 @@ function Remove-RegKeyValue
             }
             return $false
         }
-        $RegistryRoot= "[{0}]::{1}" -f 'Microsoft.Win32.RegistryHive', $RegistryHive
+        
+        $RegistryRoot = "[{0}]::{1}" -f 'Microsoft.Win32.RegistryHive', $RegistryHive
         try
         {
             $RegistryHive = Invoke-Expression $RegistryRoot -ErrorAction Stop
@@ -79,7 +80,7 @@ function Remove-RegKeyValue
     Process {
         Foreach ($Computer in $ComputerName)
         {
-            if (Test-TCPing -IPAddress $Computer -Port 445)
+            if (Test-TCPing -IPAddress $Computer)
             {
                 try
                 {
@@ -140,5 +141,3 @@ function Remove-RegKeyValue
         #[Microsoft.Win32.RegistryHive]::CurrentConfig
     }
 }
-
-#Get-Help Remove-RegKeyValue -Full

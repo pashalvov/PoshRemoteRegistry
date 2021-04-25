@@ -1,4 +1,4 @@
-function Write-RegValue
+﻿function Write-RegValue
 {
     [CmdletBinding(SupportsShouldProcess=$True,
     ConfirmImpact='Medium',
@@ -38,6 +38,30 @@ function Write-RegValue
     )
     Begin
     {
+        function Test-TCPing
+        {
+            Param
+            (
+                # Укажи имя или IP адрес компьютера
+                [Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $True)] 
+                [Alias('IP Address')]
+                [string]$IPAddress,
+                # Укажи порт для проверки
+                [Parameter(Mandatory = $false, Position=1, ValueFromPipelineByPropertyName = $True)] 
+                [string]$Port = "135"
+            )
+            
+            $TcpingOutput = & tcping -n 3 -w 0.5 -s -4 -c $IPAddress $Port
+            
+            foreach ($to in $TcpingOutput)
+            {
+                if ($to -like "*Port is open*")
+                {
+                    return $true
+                }
+            }
+            return $false
+        }
         $RegistryRoot= "[{0}]::{1}" -f 'Microsoft.Win32.RegistryHive', $RegistryHive
         try
         {
@@ -52,7 +76,7 @@ function Write-RegValue
     {
         Foreach ($Computer in $ComputerName)
         {
-            if (Test-Connection $Computer -Count 2 -Quiet)
+            if (Test-TCPing -IPAddress $Computer)
             {
                 try
                 {
@@ -61,23 +85,31 @@ function Write-RegValue
                 }
                 catch
                 {
-                    Write-Host "Check access on computer name $Computer, cannot connect registry" -BackgroundColor DarkRed
+                    Write-Host "Check access on computer name $Computer, cannot connect registry" -ForegroundColor Red
                     Continue
                 }
                 switch ($PsCmdlet.ParameterSetName)
                 {
                     'NewValue'
                     {
-                        $ValueType = [Microsoft.Win32.RegistryValueKind]::$ValueType
-                        $key.SetValue($ValueName,$ValueData,$ValueType)
-                        $Data = $key.GetValue($ValueName)
-                        $Obj = New-Object psobject
-                        $Obj | Add-Member -Name Computer -MemberType NoteProperty -Value $Computer
-                        $Obj | Add-Member -Name RegistryPath -MemberType NoteProperty -Value "$RegistryKeyPath"
-                        $Obj | Add-Member -Name RegistryValueName -MemberType NoteProperty -Value $ValueName
-                        $Obj | Add-Member -Name RegistryValueData -MemberType NoteProperty -Value $ValueData
-                        $Obj
-                        break
+                        try
+                        {
+                            $ValueType = [Microsoft.Win32.RegistryValueKind]::$ValueType
+                            $key.SetValue($ValueName,$ValueData,$ValueType)
+                            $Data = $key.GetValue($ValueName)
+                            $Obj = New-Object psobject
+                            $Obj | Add-Member -Name Computer -MemberType NoteProperty -Value $Computer
+                            $Obj | Add-Member -Name RegistryPath -MemberType NoteProperty -Value "$RegistryKeyPath"
+                            $Obj | Add-Member -Name RegistryValueName -MemberType NoteProperty -Value $ValueName
+                            $Obj | Add-Member -Name RegistryValueData -MemberType NoteProperty -Value $ValueData
+                            $Obj
+                            break
+                        }
+                        catch
+                        {
+                            Write-Host "Not able to create $ValueName on remote computer name $Computer" -ForegroundColor Red
+                            Continue
+                        }
                     }
                     'NewKey'
                     {
@@ -96,7 +128,7 @@ function Write-RegValue
                         }
                         catch
                         {
-                            Write-Host "Not able to create $ChildKey on remote computer name $Computer" -BackgroundColor DarkRed
+                            Write-Host "Not able to create $ChildKey on remote computer name $Computer" -ForegroundColor Red
                             Continue
                         }
                         break
@@ -105,7 +137,7 @@ function Write-RegValue
             }
             else
             {
-                Write-Host "Computer Name $Computer not reachable" -BackgroundColor DarkRed
+                Write-Host "Computer Name $Computer not reachable" -ForegroundColor Red
             }
         }
     }
@@ -118,6 +150,3 @@ function Write-RegValue
         #[Microsoft.Win32.RegistryHive]::CurrentConfig
     }
 }
-
-#Write-RegValue -ComputerName server01, Member01, test, 192.168.33.11, 192.168.33.12, server01 -RegistryHive LocalMachine -RegistryKeyPath SYSTEM\DemoKey -ChildKey test
-#Write-RegValue -ComputerName server01, Member01, test -RegistryHive LocalMachine -RegistryKeyPath SYSTEM\DemoKey -ValueName 'Start' -ValueData 10 -ValueType DWord

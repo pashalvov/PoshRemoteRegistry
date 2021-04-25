@@ -1,4 +1,4 @@
-function Get-InstalledSoftwareInfo {
+﻿function Get-InstalledSoftwareInfo {
 [CmdletBinding(SupportsShouldProcess=$True,
     ConfirmImpact='Medium',
     HelpURI='http://vcloud-lab.com')]
@@ -11,28 +11,33 @@ function Get-InstalledSoftwareInfo {
     {
         function Test-TCPing
         {
-            Param (
-            [Parameter(Mandatory=$true)] 
+            Param
+            (
+                # ˜˜˜˜˜ ˜˜˜ ˜˜˜ IP ˜˜˜˜˜ ˜˜˜˜˜˜˜˜˜˜
+                [Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $True)] 
                 [Alias('IP Address')]
                 [string]$IPAddress,
-            [Parameter(Mandatory=$false)] 
+                # ˜˜˜˜˜ ˜˜˜˜ ˜˜˜ ˜˜˜˜˜˜˜˜
+                [Parameter(Mandatory = $false, Position=1, ValueFromPipelineByPropertyName = $True)] 
                 [string]$Port = "135"
-                )
-        $TcpingOutput = & tcping -n 3 -w 0.5 -s -4 -c $IPAddress $Port
-        foreach ($to in $TcpingOutput)
-        {
-            if ($to -like "*Port is open*")
+            )
+            
+            $TcpingOutput = & tcping -n 3 -w 0.5 -s -4 -c $IPAddress $Port
+            
+            foreach ($to in $TcpingOutput)
             {
-                return $true
+                if ($to -like "*Port is open*")
+                {
+                    return $true
+                }
             }
-        }
-        return $false
+            return $false
         }
     }
     Process
     {
         Foreach ($Computer in $ComputerName) {
-            if (Test-TCPing -IPAddress $Computer -Port 445)
+            if (Test-TCPing -IPAddress $Computer)
             {
                 $RegistryHive = 'LocalMachine'
                 $RegistryKeyPath = $('SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall', 'SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall')
@@ -83,7 +88,3 @@ function Get-InstalledSoftwareInfo {
         
     }
 }
-
-#Test-TCPing -IPAddress 192.168.1.35 -Port 3389
-
-#Get-InstalledSoftwareInfo -ComputerName 192.168.1.35 | Format-Table -AutoSize 

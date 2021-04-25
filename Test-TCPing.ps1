@@ -1,6 +1,6 @@
 ﻿function Test-TCPing
 {
-    Param
+    param
     (
         # Укажи имя или IP адрес компьютера
         [Parameter(Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $True)] 

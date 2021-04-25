@@ -1,4 +1,4 @@
-function Get-RemoteRegInfo {
+﻿function Get-RemoteRegInfo {
 [CmdletBinding(SupportsShouldProcess=$True,
     ConfirmImpact='Medium',
     HelpURI='http://vcloud-lab.com',
@@ -64,7 +64,7 @@ function Get-RemoteRegInfo {
     {
         Foreach ($Computer in $ComputerName)
         {
-            if (Test-TCPing -IPAddress $Computer -Port 445)
+            if (Test-TCPing -IPAddress $Computer)
             {
                 try
                 {
@@ -112,7 +112,7 @@ function Get-RemoteRegInfo {
             }
             else
             {
-                Write-Host "Computer Name $Computer not reachable" -BackgroundColor DarkRed
+                Write-Host "Computer Name $Computer not reachable" -ForegroundColor Red
             }
         }
     }
@@ -125,6 +125,3 @@ function Get-RemoteRegInfo {
         #[Microsoft.Win32.RegistryHive]::CurrentConfig
     }
 }
-
-#Get-RemoteRegInfo -ComputerName LEVIK888 -RegistryHive Users -RegistryKeyPath S-1-5-18 -Type ChildKey
-#Get-RemoteRegInfo -ComputerName server01, member01 -RegistryHive Users -RegistryKeyPath S-1-5-18\Environment -Type ValueData
