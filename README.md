@@ -1,4 +1,4 @@
-# PSRemoteRegistry
+# PoshRemoteRegistry
 Форк этого проекта: https://github.com/kunaludapi/Powershell-remote-registry
 
 ## Удалённая работа с реестром в PowerShell
