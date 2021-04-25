@@ -2,7 +2,7 @@
 
 Get-ChildItem -Path (Split-Path $PSScriptRoot -Parent) -Filter '*.ps1' -File | ForEach-Object {. $_.FullName}
 
-$ComputerName = 'LEVIK888'
+$ComputerName = 'имя_компа'
 $RegistryKeyPath = 'SOFTWARE\WOW6432Node\PSRemoteRegistry'
 $ValueName = 'ModuleName'
 $ValueData = 'PSRemoteRegistry'
