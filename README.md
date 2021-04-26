@@ -6,21 +6,14 @@
 ### Минимальные требования:
 - Версия PowerShell - 5.1
 - ОС - Windows 10
-- [tcping.exe](https://elifulkerson.com/projects/tcping.php) 0.39 или выше
 
-### Установка
-
-Я смог! Обратите внимание что это пока пре-релиз. Установка теперь проще паренной репы:
+### Установка:
 ```powershell
 Install-Module -Name PoshRemoteRegistry -AllowPrerelease
+Import-Module PoshRemoteRegistry
 ```
 
-~~- Качаем себе архив релиза и распаковываем в любое место~~
-~~- Качаем прогу tcping.exe [отсюда](https://elifulkerson.com/projects/tcping.php) исохраняем её в C:\Windows или C:\Windows\System32 (это нужно что бы не искать её и не писать полный путь к ней), либо куда угодно и добавляем папку с ней у переменной PATH. Не забываем снять признак того что файл был скачан из инета, например такой коммандой `Unblock-File -Path 'путь_к_файлу'`~~
-~~- Добавляем с своему скрипту путь до нужной функции ` 'Путь_к_нужной_функции.ps1'`~~
-- Когда научусь сделаю NuGet пакет, но не сейчас :) Или уже научился - [PoshRemoteRegistry](https://www.powershellgallery.com/packages/PoshRemoteRegistry)
-
-### Примеры использования
+### Примеры использования:
 
 [PSRemoteRegistry_Examples.ps1](https://raw.githubusercontent.com/pashalvov/PSRemoteRegistry/master/%D0%9F%D1%80%D0%B8%D0%BC%D0%B5%D1%80%D1%8B/PSRemoteRegistry_Examples.ps1)
 

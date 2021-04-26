@@ -131,7 +131,7 @@ function Get-RegValueData {
             }
             else
             {
-                Write-Error "Computer Name $Computer not reachable"
+                Write-Error "Computer Name $Computer not reachable" -Category ConnectionError
             }
         }
     }
@@ -248,7 +248,7 @@ function Get-RegChildItem
                             $obj | Add-Member -Name ComputerName -MemberType NoteProperty -Value $Computer
                             $obj | Add-Member -Name RegistryKeyPath -MemberType NoteProperty -Value "$RegistryHive\$RegistryKeyPath"
                             $obj | Add-Member -Name ChildKey -MemberType NoteProperty -Value $ck
-                            $obj
+                            return $obj
                         }
                         break
                     }
@@ -262,7 +262,7 @@ function Get-RegChildItem
                             $obj | Add-Member -Name ValueName -MemberType NoteProperty -Value $vn
                             $obj | Add-Member -Name ValueData -MemberType NoteProperty -Value $key.GetValue($vn)
                             $obj | Add-Member -Name ValueKind -MemberType NoteProperty -Value $key.GetValueKind($vn)
-                            $obj
+                            return $obj
                         }
                         break
                     }
@@ -270,7 +270,7 @@ function Get-RegChildItem
             }
             else
             {
-                Write-Error "Computer Name $Computer not reachable"
+                Write-Error "Computer Name $Computer not reachable" -Category ConnectionError
             }
         }
     }
@@ -422,7 +422,7 @@ function Remove-RegKeyValue
             }
             else
             {
-                Write-Error "Computer Name $Computer not reachable"
+                Write-Error "Computer Name $Computer not reachable" -Category ConnectionError
             }
         }
     }
@@ -554,7 +554,7 @@ function Write-RegValueData
                             $Obj | Add-Member -Name RegistryPath -MemberType NoteProperty -Value "$RegistryKeyPath"
                             $Obj | Add-Member -Name RegistryValueName -MemberType NoteProperty -Value $ValueName
                             $Obj | Add-Member -Name RegistryValueData -MemberType NoteProperty -Value $ValueData
-                            $Obj
+                            return $Obj
                             break
                         }
                         catch
@@ -576,6 +576,7 @@ function Write-RegValueData
                                 $Obj
                                 Continue
                             }
+                            
                             [void]$Key.CreateSubKey("$ChildKey")
                         }
                         catch
@@ -589,7 +590,7 @@ function Write-RegValueData
             }
             else
             {
-                Write-Error "Computer Name $Computer not reachable"
+                Write-Error "Computer Name $Computer not reachable" -Category ConnectionError
             }
         }
     }
