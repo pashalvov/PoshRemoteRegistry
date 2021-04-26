@@ -576,7 +576,7 @@ function Write-RegValueData
                                 $Obj
                                 Continue
                             }
-                            
+
                             [void]$Key.CreateSubKey("$ChildKey")
                         }
                         catch
@@ -605,6 +605,7 @@ function Write-RegValueData
     }
 }
 
+<#
 # TODO #1 Сделать сокращения
 #region Aliases
 #New-Alias -Name ssj -Value Start-RSJob -Force
@@ -616,5 +617,6 @@ $ExportModule = @{
     Function = @('Test-TCPing','Get-RegValueData','Get-RegChildItem','Remove-RegKeyValue','Write-RegValueData')
     #Variable = @('PoshRS_JobId','PoshRS_Jobs','PoshRS_jobCleanup','PoshRS_RunspacePoolCleanup','PoshRS_RunspacePools')
 }
+#>
 
-Export-ModuleMember @ExportModule
+Export-ModuleMember -Function *
